@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Government AI Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        h2 { color: #666; }
+        ul { list-style-type: none; }
+    </style>
+</head>
+<body>
+    <h1>Public Sentiment & Misinformation Dashboard</h1>
+    <h2>Sentiment Distribution</h2>
+    <ul>
+        {% for sentiment, count in sentiments.items() %}
+            <li>{{ sentiment }}: {{ count }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Top Topics</h2>
+    <ul>
+        {% for topic, count in topics.items() %}
+            <li>Topic {{ topic }}: {{ count }} mentions</li>
+        {% endfor %}
+    </ul>
+    <h2>Misinformation Alerts</h2>
+    <p>Potential misinformation detected: {{ misinfo }}</p>
+</body>
+</html>
