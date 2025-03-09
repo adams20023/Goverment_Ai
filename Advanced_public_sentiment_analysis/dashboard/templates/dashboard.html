@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government AI Dashboard</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
+    
+    <!-- JS Dependencies -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body :class="{ 'dark-mode': darkMode }">
+    <div id="app" class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <!-- Navigation -->
+        <nav class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">
+                            AI Sentiment Dashboard
+                        </h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button @click="toggleDarkMode" 
+                                class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <!-- Dark/Light mode icon -->
+                            </svg>
+                        </button>
+                        <div v-if="user" class="flex items-center space-x-2">
+                            <span class="text-gray-700 dark:text-gray-300">{{ user.email }}</span>
+                            <button @click="logout" 
+                                    class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <!-- Loading State -->
+            <div v-if="isLoading" class="flex justify-center items-center h-64">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Sentiment Trend Chart -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                        Sentiment Trend
+                    </h2>
+                    <div class="h-64">
+                        <canvas id="sentimentTrend"></canvas>
+                    </div>
+                </div>
+
+                <!-- Topic Distribution -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                        Topic Distribution
+                    </h2>
+                    <div class="h-64">
+                        <canvas id="topicDistribution"></canvas>
+                    </div>
+                </div>
+
+                <!-- Real-time Alerts -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                        Real-time Alerts
+                    </h2>
+                    <div class="space-y-4">
+                        <div v-for="alert in alerts" 
+                             :key="alert.id"
+                             class="p-4 rounded-md"
+                             :class="alertClass(alert.type)">
+                            {{ alert.message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscription Card -->
+            <div v-if="!user?.subscription" 
+                 class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                    
